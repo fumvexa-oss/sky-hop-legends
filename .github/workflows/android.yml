@@ -1,0 +1,68 @@
+name: Android app
+on:
+  push:
+    branches: [main]
+    paths: ['index.html', 'icon-512.png', '.github/workflows/android.yml']
+  workflow_dispatch: {}
+permissions: {contents: write}
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '17'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '20'}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Game files (3D engine bundled so it loads fast)
+        run: |
+          mkdir -p cap/www
+          cp index.html privacy.html cap/www/
+          curl -fsSL https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js -o cap/www/three.min.js
+          sed -i 's#https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js#three.min.js#g' cap/www/index.html
+      - name: Android project
+        working-directory: cap
+        run: |
+          npm init -y >/dev/null
+          npm i @capacitor/core@6.2.0 @capacitor/cli@6.2.0 @capacitor/android@6.2.0
+          printf '{"appId":"com.fumvexa.skyhoplegends","appName":"Sky Hop Legends","webDir":"www","android":{"backgroundColor":"#7cc8ff"}}' > capacitor.config.json
+          npx cap add android
+          npx cap sync android
+      - name: App icon
+        run: |
+          pip install pillow
+          python - <<'PY'
+          from PIL import Image
+          import os,shutil
+          res='cap/android/app/src/main/res'
+          shutil.rmtree(res+'/mipmap-anydpi-v26',ignore_errors=True)
+          src=Image.open('icon-512.png').convert('RGBA')
+          for d,s in {'mdpi':48,'hdpi':72,'xhdpi':96,'xxhdpi':144,'xxxhdpi':192}.items():
+              os.makedirs(f'{res}/mipmap-{d}',exist_ok=True)
+              im=src.resize((s,s),Image.LANCZOS)
+              for n in ('ic_launcher','ic_launcher_round','ic_launcher_foreground'):
+                  im.save(f'{res}/mipmap-{d}/{n}.png')
+          PY
+      - name: Build and sign
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+          KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASS }}
+        run: |
+          cd cap/android && ./gradlew assembleRelease --no-daemon -q && cd ../..
+          BT=$(ls -d $ANDROID_HOME/build-tools/* | sort -V | tail -1)
+          $BT/zipalign -p -f 4 cap/android/app/build/outputs/apk/release/app-release-unsigned.apk aligned.apk
+          echo "$KS_B64" | base64 -d > ks.jks
+          $BT/apksigner sign --ks ks.jks --ks-key-alias skyhop --ks-pass env:KS_PASS --key-pass env:KS_PASS --out SkyHopLegends.apk aligned.apk
+          rm ks.jks && $BT/apksigner verify SkyHopLegends.apk && ls -la SkyHopLegends.apk
+      - uses: actions/upload-artifact@v4
+        with: {name: SkyHopLegends-apk, path: SkyHopLegends.apk}
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: app-${{ github.run_number }}
+          name: Sky Hop Legends app (build ${{ github.run_number }})
+          make_latest: true
+          files: SkyHopLegends.apk
+          body: Download SkyHopLegends.apk on your Android phone and open it to install.
