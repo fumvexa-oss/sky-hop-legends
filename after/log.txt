@@ -1,0 +1,12 @@
+01-map RENDER {"calls":361,"triangles":57585,"geometries":441,"pixelRatio":1}
+02-map RENDER {"calls":406,"triangles":45946,"geometries":587,"pixelRatio":1}
+03-map RENDER {"calls":411,"triangles":65801,"geometries":591,"pixelRatio":1}
+04-map RENDER {"calls":296,"triangles":34761,"geometries":410,"pixelRatio":1}
+05-map RENDER {"calls":319,"triangles":60270,"geometries":467,"pixelRatio":1}
+06-map RENDER {"calls":397,"triangles":40064,"geometries":620,"pixelRatio":1}
+07-map RENDER {"calls":303,"triangles":37650,"geometries":431,"pixelRatio":1}
+08-map RENDER {"calls":304,"triangles":40136,"geometries":368,"pixelRatio":1}
+09-map RENDER {"calls":324,"triangles":54374,"geometries":445,"pixelRatio":1}
+10-map RENDER {"calls":383,"triangles":59569,"geometries":559,"pixelRatio":1}
+11-map RENDER {"calls":398,"triangles":63106,"geometries":612,"pixelRatio":1}
+12-map RENDER {"calls":455,"triangles":44188,"geometries":692,"pixelRatio":1}
