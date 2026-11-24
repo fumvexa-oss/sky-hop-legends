@@ -1,5 +1,5 @@
 // Sky Hop Legends: keeps the game playable offline after the first visit.
-const CACHE="skyhop-v25";
+const CACHE="skyhop-v26";
 const CORE=["./","index.html","manifest.webmanifest","icon-192.png","icon-512.png","icon-maskable-512.png","privacy.html",
   "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"];
 self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))});
