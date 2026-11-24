@@ -11,7 +11,7 @@ const {chromium}=require('playwright');const fs=require('fs');const path=require
     if(world==null){await pg.screenshot({path:path.join(out,name+'.png')});await pg.close();return}
     await pg.click('#playBtn');await pg.click('#world-'+world);await pg.click('#goBtn');await pg.waitForTimeout(4500);
     await pg.screenshot({path:path.join(out,name+'-start.png')});
-    if(walk){await pg.keyboard.down('w');await pg.waitForTimeout(1600);await pg.keyboard.up('w');await pg.waitForTimeout(600);await pg.screenshot({path:path.join(out,name+'-run.png')})}
+    if(walk){await pg.keyboard.down('w');await pg.waitForTimeout(1600);await pg.keyboard.up('w');await pg.waitForTimeout(600);await pg.screenshot({path:path.join(out,name+'-run.png')});const ri=await pg.evaluate(()=>window.__ri?window.__ri():null);log.push(name+' RENDER '+JSON.stringify(ri))}
     await pg.close()};
   await shoot('00-home-landscape',{width:844,height:390});
   await shoot('00-home-portrait',{width:390,height:844});
